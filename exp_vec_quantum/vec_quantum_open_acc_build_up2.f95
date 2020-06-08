@@ -12,9 +12,6 @@ program main
         integer:: r,s,q
 
 
-        !start log time
-        call system_clock(count_max=count_max, count_rate=count_rate)
-        call system_clock(t1)
         
         !load matrix from file in order to build C
         open(unit=1, file="matrix_1000_1000_001")
@@ -80,49 +77,57 @@ program main
         end do
         
 
-
-        total=0.d0
-        !!$acc kernels loop copyin(C(:,:),B(:,:),E(:))reduction(+:total)
-        !!$acc kernels loop copyin(C(:,:),B(:,:),E(:)) copyout(total)
-
-        !!$acc data copyin(C1(:,:),C2(:,:),C3(:,:),C4(:,:),B1(:,:),B2(:,:),B3(:,:),B4(:,:),E1(:),E2(:),E3(:),E4(:)) copyout(total) create(B(4*N,4*N),C(4*N,4*N),E(4*N))
-
-        !$acc data copyin(C1(:,:),C2(:,:),C3(:,:),C4(:,:),B1(:,:),B2(:,:),B3(:,:),B4(:,:),E1(:),E2(:),E3(:),E4(:)) create(B(4*N,4*N),C(4*N,4*N),E(4*N))
         
 
         !build up matrix B
-        !$acc kernels loop 
 	do i=1,4*N
 		do j=1,4*N
                         B(i,j)=0
-                        C(i,j)=0
 
                         if(i .le. N .and. j .le. N) then
                                 B(i,j)=B1(i,j)
-                                C(i,j)=C1(i,j)
                         end if
 
                         if(i .gt. N .and. i .le. 2*N .and. j .gt. N .and. j .le. 2*N) then
                                 B(i,j)=B2(i-N,j-N)
-                                C(i,j)=C2(i-N,j-N)
                         end if
 
                         if(i .gt. 2*N .and. i .le. 3*N .and. j .gt. 2*N .and. j .le. 3*N) then
                                 B(i,j)=B3(i-2*N,j-2*N)
-                                C(i,j)=C3(i-2*N,j-2*N)
                         end if
 
                         if(i .gt. 3*N .and. i .le. 4*N .and. j .gt. 3*N .and. j .le. 4*N) then
                                 B(i,j)=B4(i-3*N,j-3*N)
-                                C(i,j)=C4(i-3*N,j-3*N)
                         end if
 		end do
 	end do
 
-        !$acc end kernels
+
+        !build up matrix C
+	do i=1,4*N
+		do j=1,4*N
+                        C(i,j)=0
+
+                        if(i .le. N .and. j .le. N) then
+                                C(i,j)=C1(i,j)
+                        end if
+
+                        if(i .gt. N .and. i .le. 2*N .and. j .gt. N .and. j .le. 2*N) then
+                                C(i,j)=C2(i-N,j-N)
+                        end if
+
+                        if(i .gt. 2*N .and. i .le. 3*N .and. j .gt. 2*N .and. j .le. 3*N) then
+                                C(i,j)=C3(i-2*N,j-2*N)
+                        end if
+
+                        if(i .gt. 3*N .and. i .le. 4*N .and. j .gt. 3*N .and. j .le. 4*N) then
+                                C(i,j)=C4(i-3*N,j-3*N)
+                        end if
+		end do
+	end do
+        
 
         !build up matrix E
-        !$acc kernels loop 
 	do i=1,4*N
                         E(i)=0
 
@@ -143,12 +148,11 @@ program main
                         end if
 	end do
 
-        !$acc end kernels
-        !$acc end data
-
-
-        !$acc data present(B,C,E)
-        !$acc kernels loop 
+        !start log time
+        call system_clock(count_max=count_max, count_rate=count_rate)
+        call system_clock(t1)
+        total=0.d0
+        !$acc kernels loop reduction(+:total)
 
         do r=1,4*N
                 do s=1,4*N
@@ -158,7 +162,6 @@ program main
                 enddo
         enddo
         !$acc end kernels
-        !$acc end data
         
         !end log time
         call system_clock(t2)
