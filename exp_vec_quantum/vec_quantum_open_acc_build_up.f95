@@ -145,7 +145,7 @@ program main
 
         !$acc end kernels
         !$acc end data
-
+        print *, E(100);
 
         !$acc data present(B,C,E) create(B(:,:),C(:,:),E(:))
         !$acc kernels loop 
