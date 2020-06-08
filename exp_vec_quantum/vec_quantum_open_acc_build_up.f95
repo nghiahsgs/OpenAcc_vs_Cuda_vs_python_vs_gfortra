@@ -147,7 +147,7 @@ program main
         !$acc end data
 
 
-        !$acc data present(B,C,E)
+        !$acc data present(B,C,E) create(B(:,:),C(:,:),E(:))
         !$acc kernels loop 
 
         do r=1,4*N
