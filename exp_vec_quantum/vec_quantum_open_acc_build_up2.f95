@@ -1,9 +1,9 @@
 program main
         integer :: N=1000
-        double precision, dimension(1000,1000) ::C_x,B_x
+        double precision, dimension(4,1000,1000) ::C_x,B_x
         double precision, dimension(4000,4000) ::C,B
 
-        double precision, dimension(1000) ::E_x
+        double precision, dimension(4,1000) ::E_x
         double precision, dimension(4000) ::E
 
         character(len=1024)::file_name_C,file_name_B,file_name_E
@@ -28,20 +28,20 @@ program main
                 write(file_name_C ,"(A19,I1)") "matrix_1000_1000_00",2*x-1
                 open(unit=1, file=trim(file_name_C))
                 do i=1,N
-                        read(1,*) C_x(i,:)
+                        read(1,*) C_x(x,i,:)
                 end do
 
                 write(file_name_B ,"(A19,I1)") "matrix_1000_1000_00",2*x
                 open(unit=1, file=trim(file_name_B))
                 do i=1,N
-                        read(1,*) B_x(i,:)
+                        read(1,*) B_x(x,i,:)
                 end do
                 
                 !update element in matrix C
                 do i=(x-1)*N+1,x*N
                         do j=(x-1)*N+1,x*N
-                                C(i,j)=C_x(i-(x-1)*N,j-(x-1)*N)
-                                B(i,j)=B_x(i-(x-1)*N,j-(x-1)*N)
+                                C(i,j)=C_x(x,i-(x-1)*N,j-(x-1)*N)
+                                B(i,j)=B_x(x,i-(x-1)*N,j-(x-1)*N)
                         end do
                 end do
         end do
@@ -53,12 +53,12 @@ program main
                 write(file_name_E ,"(A19,I1)") "matrix_1000_1_00",x
                 open(unit=1, file=trim(file_name_E))
                 do i=1,N
-                        read(1,*) E_x(i)
+                        read(1,*) E_x(x,i)
                 end do
 
                 !update element in matrix E
                 do i=(x-1)*N+1,x*N
-                        E(i)=E_x(i-(x-1)*N)
+                        E(i)=E_x(x,i-(x-1)*N)
                 end do
         end do
         
