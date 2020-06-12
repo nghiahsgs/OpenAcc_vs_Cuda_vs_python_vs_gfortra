@@ -1,157 +1,67 @@
 program main
         integer :: N=1000
-        double precision, dimension(1000,1000) ::C1,C2,C3,C4
-        double precision, dimension(4000,4000) ::C
-        double precision, dimension(1000,1000) ::B1,B2,B3,B4
-        double precision, dimension(4000,4000) ::B
-        double precision, dimension(1000) ::E1,E2,E3,E4
+        double precision, dimension(1000,1000) ::C_x,B_x
+        double precision, dimension(4000,4000) ::C,B
+
+        double precision, dimension(1000) ::E_x
         double precision, dimension(4000) ::E
+
+        character(len=1024)::file_name_C,file_name_B,file_name_E
 
         double precision :: total
         integer:: t1,t2, count_rate, count_max
-        integer:: r,s,q
+        integer:: r,s,q,x,i,j
 
 
-        
         !start log time
         call system_clock(count_max=count_max, count_rate=count_rate)
         call system_clock(t1)
 
-        !load matrix from file in order to build C
-        open(unit=1, file="matrix_1000_1000_001")
-        do i=1,N
-                read(1,*) C1(i,:)
-        end do
+        !load matrix from file in order to build C,B
+        !do i=1,4*N
+        !        do j=1,4*N
+        !                C(i,j)=0
+        !                B(i,j)=0
+        !        end do
+        !end do
+        do x=1,4
+                write(file_name_C ,"(A19,I1)") "matrix_1000_1000_00",2*x-1
+                open(unit=1, file=trim(file_name_C))
+                do i=1,N
+                        read(1,*) C_x(i,:)
+                end do
 
-        open(unit=1, file="matrix_1000_1000_003")
-        do i=1,N
-                read(1,*) C2(i,:)
+                write(file_name_B ,"(A19,I1)") "matrix_1000_1000_00",2*x
+                open(unit=1, file=trim(file_name_B))
+                do i=1,N
+                        read(1,*) B_x(i,:)
+                end do
+                
+                !update element in matrix C
+                do i=(x-1)*N+1,x*N
+                        do j=(x-1)*N+1,x*N
+                                C(i,j)=C_x(i-(x-1)*N,j-(x-1)*N)
+                                B(i,j)=B_x(i-(x-1)*N,j-(x-1)*N)
+                        end do
+                end do
         end do
-        
-        open(unit=1, file="matrix_1000_1000_005")
-        do i=1,N
-                read(1,*) C3(i,:)
-        end do
-
-        open(unit=1, file="matrix_1000_1000_007")
-        do i=1,N
-                read(1,*) C4(i,:)
-        end do
-
-        !load matrix from file in order to build B
-        open(unit=1, file="matrix_1000_1000_002")
-        do i=1,N
-                read(1,*) B1(i,:)
-        end do
-
-        open(unit=1, file="matrix_1000_1000_004")
-        do i=1,N
-                read(1,*) B2(i,:)
-        end do
-        
-        open(unit=1, file="matrix_1000_1000_006")
-        do i=1,N
-                read(1,*) B3(i,:)
-        end do
-
-        open(unit=1, file="matrix_1000_1000_008")
-        do i=1,N
-                read(1,*) B4(i,:)
-        end do
-
         !load matrix from file in order to build E
-        open(unit=1, file="matrix_1000_1_001")
-        do i=1,N
-                read(1,*) E1(i)
-        end do
+       ! do i=1,4*N
+       !         E(i)=0
+       ! end do
+        do x=1,4
+                write(file_name_E ,"(A19,I1)") "matrix_1000_1_00",x
+                open(unit=1, file=trim(file_name_E))
+                do i=1,N
+                        read(1,*) E_x(i)
+                end do
 
-        open(unit=1, file="matrix_1000_1_002")
-        do i=1,N
-                read(1,*) E2(i)
-        end do
-        
-        open(unit=1, file="matrix_1000_1_003")
-        do i=1,N
-                read(1,*) E3(i)
-        end do
-
-        open(unit=1, file="matrix_1000_1_004")
-        do i=1,N
-                read(1,*) E4(i)
+                !update element in matrix E
+                do i=(x-1)*N+1,x*N
+                        E(i)=E_x(i-(x-1)*N)
+                end do
         end do
         
-
-        
-
-        !build up matrix B
-	do i=1,4*N
-		do j=1,4*N
-                        B(i,j)=0
-
-                        if(i .le. N .and. j .le. N) then
-                                B(i,j)=B1(i,j)
-                        end if
-
-                        if(i .gt. N .and. i .le. 2*N .and. j .gt. N .and. j .le. 2*N) then
-                                B(i,j)=B2(i-N,j-N)
-                        end if
-
-                        if(i .gt. 2*N .and. i .le. 3*N .and. j .gt. 2*N .and. j .le. 3*N) then
-                                B(i,j)=B3(i-2*N,j-2*N)
-                        end if
-
-                        if(i .gt. 3*N .and. i .le. 4*N .and. j .gt. 3*N .and. j .le. 4*N) then
-                                B(i,j)=B4(i-3*N,j-3*N)
-                        end if
-		end do
-	end do
-
-
-        !build up matrix C
-	do i=1,4*N
-		do j=1,4*N
-                        C(i,j)=0
-
-                        if(i .le. N .and. j .le. N) then
-                                C(i,j)=C1(i,j)
-                        end if
-
-                        if(i .gt. N .and. i .le. 2*N .and. j .gt. N .and. j .le. 2*N) then
-                                C(i,j)=C2(i-N,j-N)
-                        end if
-
-                        if(i .gt. 2*N .and. i .le. 3*N .and. j .gt. 2*N .and. j .le. 3*N) then
-                                C(i,j)=C3(i-2*N,j-2*N)
-                        end if
-
-                        if(i .gt. 3*N .and. i .le. 4*N .and. j .gt. 3*N .and. j .le. 4*N) then
-                                C(i,j)=C4(i-3*N,j-3*N)
-                        end if
-		end do
-	end do
-        
-
-        !build up matrix E
-	do i=1,4*N
-                        E(i)=0
-
-                        if(i .le. N) then
-                                E(i)=E1(i)
-                        end if
-
-                        if(i .gt. N .and. i .le. 2*N) then
-                                E(i)=E2(i-N)
-                        end if
-
-                        if(i .gt. 2*N .and. i .le. 3*N) then
-                                E(i)=E3(i-2*N)
-                        end if
-
-                        if(i .gt. 3*N .and. i .le. 4*N) then
-                                E(i)=E4(i-3*N)
-                        end if
-	end do
-
         total=0.d0
         !$acc kernels loop reduction(+:total)
 
