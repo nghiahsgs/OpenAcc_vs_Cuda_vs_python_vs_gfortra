@@ -13,6 +13,10 @@ program main
 
 
         
+        !start log time
+        call system_clock(count_max=count_max, count_rate=count_rate)
+        call system_clock(t1)
+
         !load matrix from file in order to build C
         open(unit=1, file="matrix_1000_1000_001")
         do i=1,N
@@ -148,9 +152,6 @@ program main
                         end if
 	end do
 
-        !start log time
-        call system_clock(count_max=count_max, count_rate=count_rate)
-        call system_clock(t1)
         total=0.d0
         !$acc kernels loop reduction(+:total)
 
