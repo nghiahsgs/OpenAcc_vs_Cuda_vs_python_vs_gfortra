@@ -1,3 +1,4 @@
+!load small matrix from cpu to gpu and build up big matrix in gpu
 program main
         integer :: N=1000
         double precision, dimension(4,1000,1000) ::C_x, B_x

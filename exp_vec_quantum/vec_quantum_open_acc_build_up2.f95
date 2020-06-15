@@ -1,3 +1,4 @@
+!build up matrix from file and trafer this matrix to gpu in order to calc
 program main
         integer :: N=1000
         double precision, dimension(4,1000,1000) ::C_x,B_x
@@ -18,12 +19,6 @@ program main
         call system_clock(t1)
 
         !load matrix from file in order to build C,B
-        !do i=1,4*N
-        !        do j=1,4*N
-        !                C(i,j)=0
-        !                B(i,j)=0
-        !        end do
-        !end do
         do x=1,4
                 write(file_name_C ,"(A19,I1)") "matrix_1000_1000_00",2*x-1
                 open(unit=1, file=trim(file_name_C))
@@ -46,9 +41,6 @@ program main
                 end do
         end do
         !load matrix from file in order to build E
-       ! do i=1,4*N
-       !         E(i)=0
-       ! end do
         do x=1,4
                 write(file_name_E ,"(A19,I1)") "matrix_1000_1_00",x
                 open(unit=1, file=trim(file_name_E))
